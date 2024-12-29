@@ -9,6 +9,8 @@ import './interfaces/IERC20.sol';
 import './interfaces/IWETH.sol';
 
 contract UniswapV2Router01 is IUniswapV2Router01 {
+    // after solidity 0.6.x, override keyword is necessary, otherwise it will cause compilation error
+    // https://docs.soliditylang.org/en/v0.8.7/060-breaking-changes.html#functions-in-interfaces
     address public immutable override factory;
     address public immutable override WETH;
 
@@ -23,6 +25,10 @@ contract UniswapV2Router01 is IUniswapV2Router01 {
     }
 
     receive() external payable {
+        // require失败的时候会回滚 然后把剩余的gas返回给调用者
+        // assert失败的时候会直接消耗所有gas
+        // 这地方写require也行 但是chatgpt说assert传达了一种更严肃的意图
+        // 如果不老老实实的用WETH调用 就没收你的全部gas
         assert(msg.sender == WETH); // only accept ETH via fallback from the WETH contract
     }
 
